@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "00_hello_world",
+    "01_variables",
+    "02_type",
+]
+
+[workspace.package]
+edition = "2021"
