@@ -149,3 +149,65 @@ Rust不允许自身或者任何部分实现了`Drop`的trait的类型使用Copy�
 - 字符类型，char。
 - 元组，当且仅当其包含的类型也都实现 Copy 的时候。比如，(i32, i32) 实现了 Copy，但 (i32, String) 就没有。
 
+返回值与作用域
+返回值也可以转移所有权。示例 4-4 与示例 4-3 一样带有类似的注释。
+
+文件名: src/main.rs
+
+```rust
+fn main() {
+  let s1 = gives_ownership();         // gives_ownership 将返回值
+                                      // 移给 s1
+
+  let s2 = String::from("hello");     // s2 进入作用域
+
+  let s3 = takes_and_gives_back(s2);  // s2 被移动到
+                                      // takes_and_gives_back 中,
+                                      // 它也将返回值移给 s3
+} // 这里, s3 移出作用域并被丢弃。s2 也移出作用域，但已被移走，
+  // 所以什么也不会发生。s1 移出作用域并被丢弃
+
+fn gives_ownership() -> String {           // gives_ownership 将返回值移动给
+                                           // 调用它的函数
+
+  let some_string = String::from("yours"); // some_string 进入作用域
+
+  some_string                              // 返回 some_string 并移出给调用的函数
+}
+
+// takes_and_gives_back 将传入字符串并返回该值
+fn takes_and_gives_back(a_string: String) -> String { // a_string 进入作用域
+
+  a_string  // 返回 a_string 并移出给调用的函数
+}
+```
+
+示例 4-4: 转移返回值的所有权
+
+变量的所有权总是遵循相同的模式：将值赋给另一个变量时移动它。当持有堆中数据值的变量离开作用域时，其值将通过 drop 被清理掉，除非数据被移动为另一个变量所有。
+
+在每一个函数中都获取所有权并接着返回所有权有些啰嗦。如果我们想要函数使用一个值但不获取所有权该怎么办呢？如果我们还要接着使用它的话，每次都传进去再返回来就有点烦人了，除此之外，我们也可能想返回函数体中产生的一些数据。
+
+我们可以使用元组来返回多个值，如示例 4-5 所示。
+
+文件名: src/main.rs
+
+```rust
+fn main() {
+    let s1 = String::from("hello");
+
+    let (s2, len) = calculate_length(s1);
+
+    println!("The length of '{}' is {}.", s2, len);
+}
+
+fn calculate_length(s: String) -> (String, usize) {
+    let length = s.len(); // len() 返回字符串的长度
+
+    (s, length)
+}
+```
+
+示例 4-5: 返回参数的所有权
+
+但是这未免有些形式主义，而且这种场景应该很常见。幸运的是，Rust 对此提供了一个功能，叫做 引用（references）。

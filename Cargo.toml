@@ -2,8 +2,9 @@
 members = [
     "00_hello_world",
     "01_variables",
-    "02_type",
+    "02_type", "03_fn", "05_ownership", "06_borrow",
 ]
+resolver = "2"
 
 [workspace.package]
 edition = "2021"
